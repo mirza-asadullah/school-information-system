@@ -1,9 +1,14 @@
+import secrets
 from typing import Iterable
 
+from fastapi import HTTPException, status
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
+from app.auth.password import get_password_hash
+from app.models.enums import UserRole
 from app.models.student import Student
+from app.models.user import User
 from app.schemas.student import StudentCreate, StudentUpdate
 
 
@@ -47,6 +52,47 @@ def get_students(
 
 
 def create_student(db: Session, payload: StudentCreate) -> Student:
+    # 1. Prevent duplicate email in students table
+    existing_student_email = db.query(Student).filter(Student.email == payload.email).first()
+    if existing_student_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Student with this email already exists",
+        )
+    
+    # 2. Prevent duplicate email in users table
+    existing_user_email = db.query(User).filter(User.email == payload.email).first()
+    if existing_user_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exists",
+        )
+
+    # 3. Prevent duplicate admission number in students table
+    existing_student_adm = db.query(Student).filter(Student.admission_no == payload.admission_no).first()
+    if existing_student_adm:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Student with this admission number already exists",
+        )
+
+    # 4. Generate password or use provided password
+    password = payload.password
+    if not password:
+        password = secrets.token_hex(4)  # 8 character hex password
+    
+    # 5. Create corresponding User record
+    user = User(
+        school_id=payload.school_id,
+        full_name=f"{payload.first_name} {payload.last_name}",
+        email=payload.email,
+        password_hash=get_password_hash(password),
+        role=UserRole.STUDENT,
+        is_active=True,
+    )
+    db.add(user)
+
+    # 6. Create Student record
     student = Student(
         school_id=payload.school_id,
         first_name=payload.first_name,
@@ -61,6 +107,9 @@ def create_student(db: Session, payload: StudentCreate) -> Student:
     db.add(student)
     db.commit()
     db.refresh(student)
+
+    # 7. Temporarily attach plaintext password to student object for serialization
+    student.password = password
     return student
 
 
@@ -91,5 +140,11 @@ def update_student(db: Session, student: Student, payload: StudentUpdate) -> Stu
 
 
 def delete_student(db: Session, student: Student) -> None:
+    # Deactivate corresponding user account by email
+    user = db.query(User).filter(User.email == student.email).first()
+    if user:
+        user.is_active = False
+        db.add(user)
+    
     db.delete(student)
     db.commit()

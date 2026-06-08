@@ -13,9 +13,10 @@ const initialState: OpeneducatState = {
   error: null,
 };
 
-export const fetchOpeneducatConfig = createAsyncThunk('openeducat/fetchConfig', async (_, { rejectWithValue }) => {
+export const fetchOpeneducatConfig = createAsyncThunk('openeducat/fetchConfig', async (params: any | undefined, { rejectWithValue }) => {
   try {
-    return await openeducatService.getConfig();
+    const data = await openeducatService.list(params);
+    return data.items?.[0] || null;
   } catch (error: unknown) {
     return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch OpenEduCat configuration');
   }

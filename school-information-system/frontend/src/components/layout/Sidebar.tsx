@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -148,7 +148,7 @@ export function Sidebar({ open, mobileOpen, onMobileClose }: SidebarProps) {
           const visibleItems = group.items.filter((item) => {
             // Apply role restriction logic
             if (user?.role === 'STUDENT') {
-              return ['Dashboard', 'Students', 'Courses', 'Results', 'Profile'].includes(item.title);
+              return ['Dashboard', 'Profile'].includes(item.title);
             }
             if (user?.role === 'SCHOOL_ADMIN') {
               return item.title !== 'Schools'; // School admins can manage students/courses but not root schools list

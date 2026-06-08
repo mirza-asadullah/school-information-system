@@ -32,6 +32,7 @@ import {
   Drawer,
   Avatar,
   Divider,
+  Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -58,6 +59,7 @@ const studentSchema = yup.object({
   admission_no: yup.string().required('Admission number is required'),
   school_id: yup.number().required('School assignment is required').typeError('School assignment is required'),
   status: yup.string().required('Status is required').oneOf(['active', 'inactive', 'pending']),
+  password: yup.string().nullable().optional().transform((val) => val === '' ? null : val),
 });
 
 type StudentFormInputs = yup.InferType<typeof studentSchema>;
@@ -79,6 +81,7 @@ export function StudentListPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password?: string } | null>(null);
   
   // Table sorting
   const [sortField, setSortField] = useState('first_name');
@@ -105,6 +108,7 @@ export function StudentListPage() {
       admission_no: '',
       school_id: undefined,
       status: 'active',
+      password: '',
     },
   });
 
@@ -129,6 +133,7 @@ export function StudentListPage() {
       admission_no: `ADM-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
       school_id: schools[0]?.id || undefined,
       status: 'active',
+      password: '',
     });
     setOpenDialog(true);
   };
@@ -145,6 +150,7 @@ export function StudentListPage() {
       admission_no: student.admission_no,
       school_id: student.school_id,
       status: (student.status as 'active' | 'inactive' | 'pending') || 'active',
+      password: '',
     });
     setOpenDialog(true);
   };
@@ -155,11 +161,16 @@ export function StudentListPage() {
       if (editingStudent) {
         await studentService.update(editingStudent.id, data);
         enqueueSnackbar('Student profile updated successfully', { variant: 'success' });
+        setOpenDialog(false);
       } else {
-        await studentService.create(data);
+        const res = await studentService.create(data);
         enqueueSnackbar('Student admitted successfully', { variant: 'success' });
+        setOpenDialog(false);
+        setCreatedCredentials({
+          email: res.email,
+          password: res.password,
+        });
       }
-      setOpenDialog(false);
       dispatch(fetchStudents());
     } catch (error: any) {
       const msg = error.response?.data?.detail || 'An error occurred while saving student info.';
@@ -355,7 +366,7 @@ export function StudentListPage() {
           </Stack>
 
           {/* Table Container */}
-          <TableContainer component={Box} sx={{ borderTop: `1px solid ${theme => theme.palette.divider}` }}>
+          <TableContainer component={Box} sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -673,6 +684,27 @@ export function StudentListPage() {
                 />
               </Grid>
 
+              {!editingStudent && (
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="password"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Password (Optional)"
+                        type="text"
+                        fullWidth
+                        error={!!errors.password}
+                        helperText={errors.password?.message}
+                        disabled={saveLoading}
+                        placeholder="Leave blank to auto-generate"
+                      />
+                    )}
+                  />
+                </Grid>
+              )}
+
               <Grid item xs={12} sm={6}>
                 <Controller
                   name="phone"
@@ -812,6 +844,53 @@ export function StudentListPage() {
             </Button>
           </DialogActions>
         </Box>
+      </Dialog>
+
+      {/* Credentials Display Dialog */}
+      <Dialog
+        open={Boolean(createdCredentials)}
+        onClose={() => setCreatedCredentials(null)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontFamily: 'Outfit', bgcolor: 'primary.main', color: 'primary.contrastText', pb: 2 }}>
+          Student Login Credentials
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              The student profile has been created successfully. Below are the login credentials to access the Student Dashboard:
+            </Typography>
+            <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+              <Stack spacing={1.5}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block' }}>
+                    Login Email Address
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                    {createdCredentials?.email}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block' }}>
+                    Temporary Password
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace', color: 'error.main' }}>
+                    {createdCredentials?.password || '(No password returned)'}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+            <Alert severity="warning" sx={{ borderRadius: 2 }}>
+              Make sure to copy these credentials now as the password cannot be shown again.
+            </Alert>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={() => setCreatedCredentials(null)} variant="contained" fullWidth>
+            I have saved the credentials
+          </Button>
+        </DialogActions>
       </Dialog>
     </Stack>
   );

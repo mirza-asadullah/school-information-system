@@ -335,7 +335,7 @@ export function EnrollmentListPage() {
           </Stack>
 
           {/* Table */}
-          <TableContainer component={Box} sx={{ borderTop: `1px solid ${theme => theme.palette.divider}` }}>
+          <TableContainer component={Box} sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
             <Table>
               <TableHead>
                 <TableRow>

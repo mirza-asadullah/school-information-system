@@ -43,7 +43,7 @@ export const resultSlice = createSlice({
       })
       .addCase(fetchResults.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload?.items ?? action.payload;
       })
       .addCase(fetchResults.rejected, (state, action) => {
         state.loading = false;

@@ -38,10 +38,6 @@ export function ShellLayout() {
             xs: '100%', 
             md: `calc(100% - ${sidebarOpen ? 280 : 80}px)` 
           },
-          ml: { 
-            xs: 0, 
-            md: `${sidebarOpen ? 280 : 80}px` 
-          },
           transition: (theme) =>
             theme.transitions.create(['width', 'margin'], {
               easing: theme.transitions.easing.sharp,

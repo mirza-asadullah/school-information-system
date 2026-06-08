@@ -17,4 +17,8 @@ export const examService = {
     const response = await api.put(`/exams/${id}`, payload);
     return response.data;
   },
+  remove: async (id: string) => {
+    const response = await api.delete(`/exams/${id}`);
+    return response.data;
+  },
 };

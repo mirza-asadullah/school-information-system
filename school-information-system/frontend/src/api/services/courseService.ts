@@ -17,4 +17,8 @@ export const courseService = {
     const response = await api.put(`/courses/${id}`, payload);
     return response.data;
   },
+  remove: async (id: string) => {
+    const response = await api.delete(`/courses/${id}`);
+    return response.data;
+  },
 };

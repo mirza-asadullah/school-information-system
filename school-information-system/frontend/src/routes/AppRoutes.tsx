@@ -53,7 +53,7 @@ export function AppRoutes() {
         <Route
           path="students"
           element={
-            <RoleGuard allowedRoles={['SUPER_ADMIN', 'SCHOOL_ADMIN', 'STUDENT']}>
+            <RoleGuard allowedRoles={['SUPER_ADMIN', 'SCHOOL_ADMIN']}>
               <StudentListPage />
             </RoleGuard>
           }
@@ -61,7 +61,7 @@ export function AppRoutes() {
         <Route
           path="courses"
           element={
-            <RoleGuard allowedRoles={['SUPER_ADMIN', 'SCHOOL_ADMIN', 'STUDENT']}>
+            <RoleGuard allowedRoles={['SUPER_ADMIN', 'SCHOOL_ADMIN']}>
               <CourseListPage />
             </RoleGuard>
           }
@@ -93,7 +93,7 @@ export function AppRoutes() {
         <Route
           path="results"
           element={
-            <RoleGuard allowedRoles={['SUPER_ADMIN', 'SCHOOL_ADMIN', 'STUDENT']}>
+            <RoleGuard allowedRoles={['SUPER_ADMIN', 'SCHOOL_ADMIN']}>
               <ResultListPage />
             </RoleGuard>
           }

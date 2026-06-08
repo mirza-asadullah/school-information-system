@@ -34,19 +34,19 @@ export const authService = {
    */
   getCurrentUser: async (): Promise<UserProfile> => {
     const response = await api.get<{
-      id: string;
-      name: string;
+      id: number;
+      full_name: string;
       email: string;
       role: string;
-      school_id?: string;
+      school_id?: number;
     }>('/auth/me');
 
     return {
-      id: response.data.id,
-      name: response.data.name,
+      id: response.data.id.toString(),
+      name: response.data.full_name,
       email: response.data.email,
       role: (response.data.role as 'SUPER_ADMIN' | 'SCHOOL_ADMIN' | 'STUDENT') || 'STUDENT',
-      schoolId: response.data.school_id,
+      schoolId: response.data.school_id?.toString(),
     };
   },
 

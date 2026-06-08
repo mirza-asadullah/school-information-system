@@ -17,4 +17,8 @@ export const resultService = {
     const response = await api.put(`/results/${id}`, payload);
     return response.data;
   },
+  remove: async (id: string) => {
+    const response = await api.delete(`/results/${id}`);
+    return response.data;
+  },
 };

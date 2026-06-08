@@ -13,6 +13,7 @@ class StudentCreate(BaseModel):
     date_of_birth: date | None = Field(None, description="Student date of birth")
     admission_no: str = Field(..., description="Admission number")
     status: str | None = Field(None, description="Student status")
+    password: str | None = Field(None, description="Password for the user account")
 
 
 class StudentUpdate(BaseModel):
@@ -40,6 +41,7 @@ class StudentResponse(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
+    password: str | None = None
 
     model_config = {
         "from_attributes": True,

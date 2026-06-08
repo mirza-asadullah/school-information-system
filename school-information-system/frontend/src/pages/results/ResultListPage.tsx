@@ -29,6 +29,7 @@ import {
   Chip,
   Tooltip,
   Grid,
+  Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -396,7 +397,7 @@ export function ResultListPage() {
           </Stack>
 
           {/* Table */}
-          <TableContainer component={Box} sx={{ borderTop: `1px solid ${theme => theme.palette.divider}` }}>
+          <TableContainer component={Box} sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
             <Table>
               <TableHead>
                 <TableRow>

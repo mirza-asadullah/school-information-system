@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { authService } from '../../api/services/authService';
 import { tokenService } from '../../utils/storage';
-import type { AuthState, LoginPayload, User } from '../../types';
+import type { AuthState, LoginPayload, User, UserRole } from '../../types';
 
 const initialState: AuthState = {
   token: tokenService.getAccessToken(),
@@ -31,20 +31,14 @@ export const login = createAsyncThunk<
     tokenService.setAccessToken(token);
 
     // Step 3: Fetch user profile (requires valid token)
-    const userProfile = {
-  id: '2',
-  name: 'System Administrator',
-  email: 'admin@example.com',
-  role: 'SUPER_ADMIN',
-  schoolId: undefined,
-};
+    const userProfile = await authService.getCurrentUser();
 
     // Step 4: Transform and return
     const user: User = {
       id: userProfile.id,
       name: userProfile.name,
       email: userProfile.email,
-      role: userProfile.role,
+      role: userProfile.role as UserRole,
       schoolId: userProfile.schoolId,
     };
 

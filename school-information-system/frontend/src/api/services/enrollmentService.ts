@@ -13,4 +13,8 @@ export const enrollmentService = {
     const response = await api.put(`/enrollments/${id}`, payload);
     return response.data;
   },
+  remove: async (id: string) => {
+    const response = await api.delete(`/enrollments/${id}`);
+    return response.data;
+  },
 };

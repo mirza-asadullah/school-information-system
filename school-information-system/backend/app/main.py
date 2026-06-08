@@ -12,11 +12,19 @@ def create_app() -> FastAPI:
         description="School Information System API",
     )
 
+    import os
+    allowed_origins = ["http://localhost:5173"]
+    env_origins = os.getenv("CORS_ORIGINS")
+    if env_origins:
+        # If "*" is set, allow all origins, otherwise parse comma-separated values
+        if "*" in env_origins:
+            allowed_origins = ["*"]
+        else:
+            allowed_origins.extend([origin.strip() for origin in env_origins.split(",") if origin.strip()])
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173",
-        ],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
